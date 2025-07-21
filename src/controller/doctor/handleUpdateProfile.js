@@ -9,6 +9,7 @@ const handleUpdateProfile = async (req, res, next) => {
             updatedData = JSON.parse(req.body.editInformation);
         }
         if (req.file) {
+            console.log('there is file');
             updatedData.image = await uploadToVercelBlob(req.file);
             // updatedData.image = `/public/images/${req.file.filename}`;
         }
