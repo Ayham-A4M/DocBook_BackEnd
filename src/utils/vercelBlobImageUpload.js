@@ -1,6 +1,7 @@
 const multer = require('multer');
 const { put } = require('@vercel/blob');
 const path = require('path');
+require('dotenv');
 
 // Multer memory storage (files will be in memory, not on disk)
 const storage = multer.memoryStorage();
