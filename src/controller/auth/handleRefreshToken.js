@@ -22,8 +22,8 @@ const handleRefreshToken = async (req, res, next) => {
                 if (user.tokenVersion == decode.tokenVersion) {
                     // create another jwt
                     const payload = { id: decode.id, role: role, email: user.email, fullName: user.fullName }
-                    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' });
-                    res.cookie('jwt', accessToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 1 * 60 * 1000 }); //will removed after 30 miniutes
+                    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
+                    res.cookie('jwt', accessToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 30 * 60 * 1000 }); //will removed after 30 miniutes
                     return res.status(200).send({});
                 }
                 let response = undefined;
