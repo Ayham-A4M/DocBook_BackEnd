@@ -3,7 +3,7 @@ const { default: mongoose } = require("mongoose");
 const { Types: { ObjectId } } = mongoose;
 const reportSchema = new mongoose.Schema({
     patientName: { type: String, required: true },
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     age: { type: Number, required: true },
     reason: { type: String, required: true }, //why patent visit the doctor??
     symptoms: { type: String, required: true },

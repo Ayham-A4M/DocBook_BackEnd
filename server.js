@@ -4,7 +4,7 @@ const PORT = 8000;
 const cookieParser = require('cookie-parser')
 const { default: mongoose } = require('mongoose');
 const cors = require('cors');
-
+require('dotenv');
 
 const authRoute = require('./src/routes/auth');
 const adminRoute = require('./src/routes/admin');
@@ -13,11 +13,19 @@ const doctorRoute = require('./src/routes/doctor');
 const publicRoute = require('./src/routes/public');
 const webhookRoute = require('./src/routes/stripe_web_hook');
 const errorHandling = require('./src/middleware/errorHandling');
-mongoose.connect('mongodb://127.0.0.1:27017/ClinicDb').then(() => {
+
+
+
+mongoose.connect(process.env.DATA_BASE_URI).then(() => {
   console.log("connected complete !!")
 }).catch(err => {
   console.log(err);
 })
+// mongoose.connect('mongodb://127.0.0.1:27017/ClinicDb').then(() => {
+//   console.log("connected complete !!")
+// }).catch(err => {
+//   console.log(err);
+// })
 
 app.use(cors({
   origin: 'http://localhost:5173', // Allow your frontend's origin
@@ -46,3 +54,4 @@ app.use(errorHandling);
 app.listen(PORT, () => {
   console.log(`app listen now on port ${PORT}`);
 })
+// stripe listen --forward-to http://localhost:8000/stripe-webhook

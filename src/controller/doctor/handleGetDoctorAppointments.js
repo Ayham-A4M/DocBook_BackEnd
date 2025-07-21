@@ -1,16 +1,17 @@
+const { startOfDay, endOfDay } = require('date-fns');
 const appointmentModel = require('../../models/appointmentModel');
 const AppError = require('../../utils/AppError');
 const ObjectId = require('mongoose').Types.ObjectId;
 
-const handleGetDoctorAppointments = async (req, res,next) => {
+const handleGetDoctorAppointments = async (req, res, next) => {
     const doctorId = res.locals.id;
     const date = req.query.date;
-    console.log(doctorId,'      ',date);
+    console.log(doctorId, '      ', date);
 
     try {
-        if (!date) { throw new AppError(404,'no specific date'); }
+        if (!date) { throw new AppError(404, 'no specific date'); }
         const response = await appointmentModel.aggregate([
-            { $match: { doctorId: new ObjectId(doctorId), date: date } },
+            { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } } },
             {
                 $lookup: {
                     from: 'users',
@@ -20,18 +21,18 @@ const handleGetDoctorAppointments = async (req, res,next) => {
                 }
             },
             {
-                $unwind:"$userInformation"
+                $unwind: "$userInformation"
             },
             {
                 $project: {
                     patientName: "$userInformation.fullName",
-                    reason:true,
+                    reason: true,
                     time: true,
                     status: true,
                 }
             }
         ]);
-        
+
         return res.status(200).send(response);
     } catch (err) {
         next(err);

@@ -24,11 +24,13 @@ const handleLogin = async (req, res, next) => {
             }
             // create jwt token (role && tokenVersion && fullName) http only cookies
             const payload = { id: userFromDB._id, role: userFromDB.role, email: userFromDB.email, fullName: userFromDB.fullName }
-            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' }); // after 30 miniuts it will expired and return 401
+            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' }); // after 30 miniuts it will expired and return 401
             const refreshToken = jwt.sign({ ...payload, tokenVersion: userFromDB.tokenVersion }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '3d' });
             // after create jwt and refresh token send it to user with done operation
-            res.cookie('jwt', accessToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 30 * 60 * 1000 });
-            res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
+            // res.cookie('jwt', accessToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 30 * 60 * 1000 }); //original
+            res.cookie('jwt', accessToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 1 * 60 * 1000 });
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 3 * 24 * 60 * 60 * 1000 }); 
+            // res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 3 * 24 * 60 * 60 * 1000 }); // original
             return res.status(201).send({ msg: 'logged in successfully', user: { role: userFromDB.role } })
         })
     } catch (err) {

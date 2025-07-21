@@ -14,7 +14,7 @@ const validateAppointment = require('../validators/user/appointment.validator');
 const validateRateDoctor = require('../validators/user/rateDoctor.validator');
 // get methods
 router.get('/api/user/getdoctors', handleGetDoctors);
-router.get('/api/user/getdoctor', handleGetDoctorById);
+router.get('/api/user/getdoctor', verifyUser, handleGetDoctorById);
 router.get('/api/user/takedappointments', verifyUser, handleGetTakedAppointments);
 router.get('/api/user/myappointments', verifyUser, handleGetMyAppointments);
 
