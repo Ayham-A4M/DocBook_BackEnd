@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const createDoctor = require('../controller/admin/createDoctor');
-const upload = require('../utils/imageUpload');
+// const upload = require('../utils/imageUpload');
+const { upload } = require('../utils/vercelBlobImageUpload');
 const verifyAdmin = require('../middleware/verifyAdmin');
 const handleGetStatistics = require('../controller/admin/handleGetStatistics');
 const handleGetAllDoctors = require('../controller/admin/handleGetAllDoctors');

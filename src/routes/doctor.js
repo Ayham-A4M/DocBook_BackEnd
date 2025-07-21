@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const verifyDoctor = require('../middleware/verifyDoctor')
-const upload = require('../utils/imageUpload');
+// const upload = require('../utils/imageUpload');
+const { upload } = require('../utils/vercelBlobImageUpload');
 const handleCancelAppointment = require('../controller/doctor/handleCancelAppointment')
 const handleGetDoctorAppointments = require('../controller/doctor/handleGetDoctorAppointments');
 const handleConfirmAppointment = require('../controller/doctor/handleConfirmAppointment');
@@ -10,7 +11,7 @@ const handleArchiveReport = require('../controller/doctor/handleArchiveReport');
 const handleGetComments = require('../controller/doctor/handleGetComments')
 const handleGetDoctorProfile = require('../controller/doctor/handleGetDoctorProfile')
 const handleUpdateProfile = require('../controller/doctor/handleUpdateProfile');
-const handleGetBookings=require('../controller/doctor/handleGetBookings');
+const handleGetBookings = require('../controller/doctor/handleGetBookings');
 // validators
 const validateReport = require('../validators/doctor/report.validator');
 const validateUpdateProfile = require('../validators/doctor/updateProfile.validator');

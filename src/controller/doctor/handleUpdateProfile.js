@@ -1,4 +1,5 @@
 const doctorModel = require('../../models/doctorModel');
+const { uploadToVercelBlob } = require('../../utils/vercelBlobImageUpload')
 const handleUpdateProfile = async (req, res, next) => {
     try {
 
@@ -8,7 +9,8 @@ const handleUpdateProfile = async (req, res, next) => {
             updatedData = JSON.parse(req.body.editInformation);
         }
         if (req.file) {
-            updatedData.image = `/public/images/${req.file.filename}`;
+            updatedData.image = await uploadToVercelBlob(req.file);
+            // updatedData.image = `/public/images/${req.file.filename}`;
         }
         const updatedResponse = await doctorModel.findByIdAndUpdate(doctorId, updatedData);
         if (updatedResponse) {

@@ -1,5 +1,6 @@
 const doctorModel = require('../../models/doctorModel');
 const bcrybt = require('bcryptjs');
+const { uploadToVercelBlob } = require('../../utils/vercelBlobImageUpload')
 const AppError = require('../../utils/AppError');
 const prepareDoctor = (data) => {
     const information = JSON.parse(data);
@@ -29,11 +30,12 @@ const createDoctor = async (req, res, next) => {
     }
 
     doctor.image = `/public/images/${req.file.filename}` //multer will save this file with the name that create 
+    doctor.image = await uploadToVercelBlob(req.file);
     // first check if the email created before 
     const sameEmail = await doctorModel.findOne({ email: doctor.email });
     if (sameEmail) {
         // return res.status(400).send({ msg: 'email exist before try another one' });
-        throw new AppError(400,'email exist before try another one')
+        throw new AppError(400, 'email exist before try another one')
     }
     // second hashed the password
     const hashPassword = await bcrybt.hashSync(doctor.password, 10);
