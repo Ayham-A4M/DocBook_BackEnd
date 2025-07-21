@@ -32,7 +32,7 @@ const uploadToVercelBlob = async (file) => {
     token: process.env.BLOB_READ_WRITE_TOKEN 
   });
 
-  return blob;
+  return blob.url;
 };
 
 module.exports = {
