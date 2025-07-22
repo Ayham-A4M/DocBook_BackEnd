@@ -14,7 +14,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
@@ -26,16 +26,16 @@ const upload = multer({
 const uploadToVercelBlob = async (file) => {
   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
   const filename = 'doctor-' + uniqueSuffix + path.extname(file.originalname);
-  
+
   const blob = await put(filename, file.buffer, {
     access: 'public',
-    token: process.env.BLOB_READ_WRITE_TOKEN 
+    token: process.env.BLOB_READ_WRITE_TOKEN
   });
 
   return blob.url;
 };
 
 module.exports = {
-  upload: upload,
+  upload,
   uploadToVercelBlob
 };

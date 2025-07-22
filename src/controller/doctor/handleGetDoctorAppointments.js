@@ -6,8 +6,6 @@ const ObjectId = require('mongoose').Types.ObjectId;
 const handleGetDoctorAppointments = async (req, res, next) => {
     const doctorId = res.locals.id;
     const date = req.query.date;
-    console.log(doctorId, '      ', date);
-
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
         const response = await appointmentModel.aggregate([
