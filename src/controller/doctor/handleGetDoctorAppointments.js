@@ -7,11 +7,11 @@ const { formatInTimeZone, getTimezoneOffset, toZonedTime, format, fromZonedTime 
 const handleGetDoctorAppointments = async (req, res, next) => {
     const doctorId = res.locals.id;
     const date = req.query.date;
-
+    const zoneTime="Asia/Damascus"
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
         const isoDate = parseISO(date);
-        const utc = toZonedTime(isoDate, "UTC")
+        const utc = toZonedTime(isoDate,zoneTime)
         const start = startOfDay(utc);
         const end = endOfDay(utc)
         const response = await appointmentModel.aggregate([
