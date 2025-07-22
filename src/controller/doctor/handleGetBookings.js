@@ -7,13 +7,9 @@ const ObjectId = require('mongoose').Types.ObjectId
 
 
 const getAppointmentsForSpecificDay = async (doctorId, date) => {
-    const utcDate = new Date(date.toISOString());
-    const startUTC = startOfDay(utcDate);
-    const endUTC = endOfDay(utcDate);
     const response = await appointmentModel.aggregate([
         {
-            // $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } }
-            $match: { doctorId: new ObjectId(doctorId), date: { $gte: startUTC, $lte: endUTC } }
+            $match: { doctorId: new ObjectId(doctorId), date: {$gte:startOfDay(date),$lte:endOfDay(date)} }
         },
         {
             $lookup: {
