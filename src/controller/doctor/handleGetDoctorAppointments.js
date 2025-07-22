@@ -1,4 +1,4 @@
-const { startOfDay, endOfDay } = require('date-fns');
+const { startOfDay, endOfDay, parseISO } = require('date-fns');
 const appointmentModel = require('../../models/appointmentModel');
 const AppError = require('../../utils/AppError');
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -7,11 +7,11 @@ const { formatInTimeZone, getTimezoneOffset, toZonedTime, format, fromZonedTime 
 const handleGetDoctorAppointments = async (req, res, next) => {
     const doctorId = res.locals.id;
     const date = req.query.date;
-    const zoneTime='Asia/Damascus'
+
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
-        const startUTC = toZonedTime(startOfDay(date),zoneTime);
-        const endUTC = toZonedTime(endOfDay(date),zoneTime);
+        const startUTC = toZonedTime(startOfDay(date));
+        const endUTC = toZonedTime(endOfDay(date));
         const response = await appointmentModel.aggregate([
             { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startUTC, $lte: endUTC } } },
             // { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } } },
