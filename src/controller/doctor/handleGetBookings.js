@@ -8,7 +8,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const getAppointmentsForSpecificDay = async (doctorId, date) => {
     const response = await appointmentModel.aggregate([
         {
-            $match: { doctorId: new ObjectId(doctorId), date: {$gte:startOfDay(date),$lte:endOfDay(date)} }
+            $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } }
         },
         {
             $lookup: {
@@ -42,7 +42,7 @@ const getAppointmentsForSpecificDay = async (doctorId, date) => {
 const getTotlaAppointmentsForThisMonth = async (doctorId) => {
     const response = await appointmentModel.countDocuments({
         doctorId: doctorId,
-        date: { $gte: format(startOfMonth(new Date()), 'yyyy-MM-dd'), $lte: format(endOfMonth(new Date()), 'yyyy-MM-dd') }
+        date: { $gte: startOfMonth(new Date()), $lte: endOfMonth(new Date()) }
     })
     return response
 }
