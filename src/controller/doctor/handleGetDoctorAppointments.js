@@ -11,7 +11,7 @@ const handleGetDoctorAppointments = async (req, res, next) => {
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
         const isoDate = parseISO(date);
-        const utc = toZonedTime(isoDate,zoneTime)
+        const utc = toZonedTime(new Date(),zoneTime)
         const start = startOfDay(utc);
         const end = endOfDay(utc)
         const response = await appointmentModel.aggregate([
