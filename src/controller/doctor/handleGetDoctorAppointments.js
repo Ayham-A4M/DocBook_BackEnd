@@ -9,7 +9,7 @@ const handleGetDoctorAppointments = async (req, res, next) => {
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
         const response = await appointmentModel.aggregate([
-            { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(new Date()), $lte: endOfDay(new Date()) } } },
+            { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } } },
             {
                 $lookup: {
                     from: 'users',
