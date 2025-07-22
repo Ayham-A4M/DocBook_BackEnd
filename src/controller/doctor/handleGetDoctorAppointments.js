@@ -10,10 +10,11 @@ const handleGetDoctorAppointments = async (req, res, next) => {
 
     try {
         if (!date) { throw new AppError(404, 'no specific date'); }
-        const startUTC = toZonedTime(startOfDay(date));
-        const endUTC = toZonedTime(endOfDay(date));
+        const isoDate=parseISO(date);
+        const start= startOfDay(isoDate);
+        const end = endOfDay(isoDate)
         const response = await appointmentModel.aggregate([
-            { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startUTC, $lte: endUTC } } },
+            { $match: { doctorId: new ObjectId(doctorId), date: { $gte: start, $lte: end } } },
             // { $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } } },
             {
                 $lookup: {
