@@ -1,21 +1,14 @@
 const appointmentModel = require('../../models/appointmentModel')
 const doctorModel = require('../../models/doctorModel');
-const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz');
 const { format, startOfMonth, endOfMonth, startOfDay, endOfDay } = require('date-fns');
 const AppError = require('../../utils/AppError');
 const ObjectId = require('mongoose').Types.ObjectId
 
 
 const getAppointmentsForSpecificDay = async (doctorId, date) => {
-    const utcDate = zonedTimeToUtc(date, 'UTC');
-
-    // Get start/end of day in UTC (ignoring local timezone)
-    const startUTC = startOfDay(utcDate);
-    const endUTC = endOfDay(utcDate);
     const response = await appointmentModel.aggregate([
         {
-            $match: { doctorId: new ObjectId(doctorId), date: { $gte: startUTC, $lte: endUTC } }
-            // $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } }
+            $match: { doctorId: new ObjectId(doctorId), date: {$gte:startOfDay(date),$lte:endOfDay(date)} }
         },
         {
             $lookup: {
