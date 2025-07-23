@@ -30,14 +30,9 @@ const handleTakeAppointment = async (req, res, next) => {
             }
         }
         else {
-            // const url = await stripeProcces(appointmentInformation, userId);
-            // console.log(url);
-            // if (url)
-            //     return res.status(200).send({ url: url });
-            // else
-            //     throw new Error('server error');
+
             try {
-                console.log('entring the stripe procces');
+
                 const session = await stripe.checkout.sessions.create({
                     //information 
                     payment_method_types: ['card'], // different way to accept so we choose just card
@@ -64,7 +59,6 @@ const handleTakeAppointment = async (req, res, next) => {
                 })
                 return res.status(200).send({ url: session.url });
             } catch (err) {
-                console.log(err);
                 throw err;// to handleTakeAppointment catch errors
             }
         }

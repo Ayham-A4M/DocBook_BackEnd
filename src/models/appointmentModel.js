@@ -3,8 +3,8 @@ const { Types: { ObjectId } } = mongoose;
 // for normal user
 const appointmentSchema = new mongoose.Schema({
   date_time: { type: String, required: true },
-  date: { type: Date, required: true },
-  time: { type: Date, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
   doctorId: { type: ObjectId, ref: 'doctor', required: true },
   userId: { type: ObjectId, ref: 'user', required: true },
   fee: { type: Number, required: true },

@@ -8,7 +8,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const getAppointmentsForSpecificDay = async (doctorId, date) => {
     const response = await appointmentModel.aggregate([
         {
-            $match: { doctorId: new ObjectId(doctorId), date: { $gte: startOfDay(date), $lte: endOfDay(date) } }
+            $match: { doctorId: new ObjectId(doctorId), date: date }
         },
         {
             $lookup: {
@@ -39,10 +39,10 @@ const getAppointmentsForSpecificDay = async (doctorId, date) => {
     return response;
 }
 
-const getTotlaAppointmentsForThisMonth = async (doctorId) => {
+const getTotlaAppointmentsForThisMonth = async (doctorId,date) => {
     const response = await appointmentModel.countDocuments({
         doctorId: doctorId,
-        date: { $gte: startOfMonth(new Date()), $lte: endOfMonth(new Date()) }
+        date: { $gte:format( startOfMonth(date),'yyyy-MM-dd'), $lte: format(endOfMonth(date),'yyyy-MM-dd') }
     })
     return response
 }
@@ -54,7 +54,7 @@ const getWorkingDays = async (doctorId) => {
 
 
 const handleGetBookings = async (req, res, next) => {
-    console.log(req.query.date)
+
     try {
         const doctorId = res.locals.id;
         if (!doctorId) {
@@ -64,10 +64,10 @@ const handleGetBookings = async (req, res, next) => {
         if (req.query.date != 'null' && req.query.date) {
             date = req.query.date
         } else {
-            date = new Date()
+            throw new AppError(400, 'no specific date');
         }
 
-        const [appointmentsForSpecificDay, appointmentsCountForThisMonth, workingDays] = await Promise.all([getAppointmentsForSpecificDay(doctorId, date), getTotlaAppointmentsForThisMonth(doctorId), getWorkingDays(doctorId)])
+        const [appointmentsForSpecificDay, appointmentsCountForThisMonth, workingDays] = await Promise.all([getAppointmentsForSpecificDay(doctorId, date), getTotlaAppointmentsForThisMonth(doctorId,date), getWorkingDays(doctorId)])
         return res.status(200).send({ appointments: appointmentsForSpecificDay, countOfAppointmentsThisMonth: appointmentsCountForThisMonth, workingDays });
 
     } catch (err) {

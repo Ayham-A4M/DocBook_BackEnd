@@ -1,6 +1,6 @@
 const { default: mongoose } = require('mongoose')
 const holidaySchema = new mongoose.Schema({
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
     reason: { type: String, required: true },
 });
 holidaySchema.index(

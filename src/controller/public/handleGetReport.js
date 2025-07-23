@@ -33,7 +33,6 @@ const handleGetReport = async (req, res) => {
                 }
             },
         ])
-        console.log(reportResponse[0]);
         return res.status(200).send(reportResponse[0]);
     } catch (err) {
         next(err);

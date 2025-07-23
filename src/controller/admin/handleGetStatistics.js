@@ -2,13 +2,12 @@ const reportModel = require('../../models/reportModel');
 const doctorModel = require('../../models/doctorModel');
 const userModel = require('../../models/userModel');
 const appointmentModel = require('../../models/appointmentModel');
-const getDate = require('../../helper/getDate');
 const { format, startOfMonth, startOfWeek, endOfWeek, endOfMonth, subMonths, parseISO, startOfDay, endOfDay } = require('date-fns')
 
 const getWeeklyIncome = async () => {
     const now = new Date();
-    const startWeek = startOfWeek(now);
-    const endWeek = endOfWeek(now);
+    const startWeek = format(startOfWeek(now), 'yyyy-MM-dd');
+    const endWeek = format(endOfWeek(now), 'yyyy-MM-dd');
 
     const statistics = await appointmentModel.aggregate([
         {
@@ -24,20 +23,20 @@ const getWeeklyIncome = async () => {
         },
         {
             $group: {
-                _id: { date: { $dateToString: { format: "%Y-%m-%d", date: { $add: ["$date", 3 * 60 * 60 * 1000] } } } }, // i formatted the date with that to make it easy group it by day :)
+                _id: "$date",
                 cash: { $sum: "$fee" }
             }
         },
         {
             $project: {
                 _id: 0,
-                date: "$_id.date",
+                date: "$_id",
                 cash: 1
             }
         }
 
     ])
-  
+
     statistics.map((e) => {
         e.date = format(e.date, "EEEE");
     })
@@ -48,12 +47,12 @@ const getThisMonthIncome = async () => {
     const response = await appointmentModel.aggregate([
         {
             $match: {
-                date: { $gte: startOfMonth(new Date()), $lte: endOfMonth(new Date()) },
+                date: { $gte: format(startOfMonth(new Date()), 'yyyy-MM-dd'), $lte: format(endOfMonth(new Date()), 'yyyy-MM-dd') },
                 $or: [
                     { paymentWay: 'stripe' },
                     { paymentWay: 'cash', status: 'confirmed' }
                 ]
-            }, //this will return only cash confirmed appointments or stripe appointment 
+            }, 
 
         },
 
@@ -75,14 +74,10 @@ const getThisMonthIncome = async () => {
     return response[0].income;
 }
 
-
-
-
-
 const getMonthlyAppointmentsStatus = async () => {
     const now = new Date();
-    const startMonthDate = startOfMonth(now);
-    const endMonthDate = endOfMonth(now);
+    const startMonthDate = format(startOfMonth(now), 'yyyy-MM-dd')
+    const endMonthDate = format(endOfMonth(now), 'yyyy-MM-dd');
 
     const response = await appointmentModel.aggregate([
         {
@@ -107,8 +102,6 @@ const getMonthlyAppointmentsStatus = async () => {
     return response;
 }
 
-
-
 const handleGetStatistics = async (req, res, next) => {
     try {
         const now = new Date();
@@ -120,18 +113,18 @@ const handleGetStatistics = async (req, res, next) => {
                 getThisMonthIncome(),
                 getMonthlyAppointmentsStatus(),
                 reportModel.countDocuments(),
-                appointmentModel.countDocuments({ date: { $gte: startOfDay(now), $lte: endOfDay(now) } }),
+                appointmentModel.countDocuments({ date: format(now,'yyyy-MM-dd') }),
                 doctorModel.find({}, { fullName: 1, specialization: 1, rate: 1, treatmentsNumber: 1 }).sort({ rate: -1, treatmentsNumber: -1 }).limit(5)
 
             ])
         const [currentMontheIncome, previousMontheIncome] = await Promise.all(
             [
                 appointmentModel.aggregate([
-                    { $match: { status: 'confirmed', date: { $gte: startOfMonth(now), $lte: now } } },
+                    { $match: { status: 'confirmed', date: { $gte: format(startOfMonth(now),'yyyy-MM-dd'), $lte: format(now,'yyyy-MM-dd') } } },
                     { $group: { _id: null, total: { $sum: "$fee" } } }
                 ]),
                 appointmentModel.aggregate([
-                    { $match: { date: { $gte: subMonths(startOfMonth(now), 1), $lte: subMonths(now, 1) }, status: 'confirmed' } },
+                    { $match: { date: { $gte: format(subMonths(startOfMonth(now), 1),'yyyy-MM-dd'), $lte: format(subMonths(now, 1) ,'yyyy-MM-dd')}, status: 'confirmed' } },
                     { $group: { _id: null, total: { $sum: "$fee" } } }
                 ]),
             ]
