@@ -27,11 +27,33 @@ mongoose.connect(process.env.DATA_BASE_URI).then(() => {
 //   console.log(err);
 // })
 
+const normalizeOrigin = (origin) => {
+  return origin?.endsWith('/') ? origin.slice(0, -1) : origin;
+};
+
+const allowedOrigins = [
+  'https://docbook-pi.vercel.app', // No trailing slash
+];
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow your frontend's origin
-  //   origin: 'http://192.168.1.5', // Allow your frontend's origin
-  credentials: true // If you're using cookies/sessions
+  origin: (origin, callback) => {
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+app.options('*', cors());
+
+// app.use(cors({
+//   origin: 'http://localhost:5173', // Allow your frontend's origin
+//   //   origin: 'http://192.168.1.5', // Allow your frontend's origin
+//   credentials: true // If you're using cookies/sessions
+// }));
 
 
 app.use('/public', express.static('public'));
