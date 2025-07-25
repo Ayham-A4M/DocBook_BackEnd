@@ -21,23 +21,29 @@ mongoose.connect(process.env.DATA_BASE_URI).then(() => {
 }).catch(err => {
   console.log(err);
 })
-// mongoose.connect('mongodb://127.0.0.1:27017/ClinicDb').then(() => {
-//   console.log("connected complete !!")
-// }).catch(err => {
-//   console.log(err);
-// })
+
 
 const normalizeOrigin = (origin) => {
   return origin?.endsWith('/') ? origin.slice(0, -1) : origin;
 };
 
+
 const allowedOrigins = [
-  'https://docbook-pi.vercel.app', // No trailing slash
+  'https://docbook-pi.vercel.app',
+  'https://docbook-pi.vercel.app/' // Include both with and without slash for safety
 ];
-app.use(cors({
+
+const corsOptions = {
   origin: (origin, callback) => {
-    const normalizedOrigin = normalizeOrigin(origin);
-    if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const originClean = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+
+    if (allowedOrigins.some(allowed => {
+      const allowedClean = allowed.endsWith('/') ? allowed.slice(0, -1) : allowed;
+      return originClean === allowedClean;
+    })) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -46,14 +52,12 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-app.options('*', cors());
+  optionsSuccessStatus: 200 
+};
 
-// app.use(cors({
-//   origin: 'http://localhost:5173', // Allow your frontend's origin
-//   //   origin: 'http://192.168.1.5', // Allow your frontend's origin
-//   credentials: true // If you're using cookies/sessions
-// }));
+app.use(cors(corsOptions));
+
+
 
 
 app.use('/public', express.static('public'));
