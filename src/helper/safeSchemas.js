@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const safeStringSchema = Joi.string()
     .trim() // Remove whitespace
-    .regex(/^[a-zA-Z0-9\s\$\!\(\)\?\@\#\%\&\*\+\-\=\[\]\{\}\:\;\,\.\/\\]*$/) // Allowed chars
+    .regex(/^[a-zA-Z0-9\s\$\!\(\)\?\@\#\%\&\*\+\-\=\[\]\{\}\:\'\;\,\.\/\\]*$/) // Allowed chars
     .max(500) // Prevent long malicious strings
     .messages({
         'string.pattern.base': 'Only letters, numbers, and certain special characters ($, !, ?, etc.) are allowed.',

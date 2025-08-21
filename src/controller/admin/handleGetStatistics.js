@@ -2,6 +2,7 @@ const reportModel = require('../../models/reportModel');
 const doctorModel = require('../../models/doctorModel');
 const userModel = require('../../models/userModel');
 const appointmentModel = require('../../models/appointmentModel');
+const calculateGrowthPercentage = require('../../helper/calculateGrowthPercentage')
 const { format, startOfMonth, startOfWeek, endOfWeek, endOfMonth, subMonths, parseISO, startOfDay, endOfDay } = require('date-fns')
 
 const getWeeklyIncome = async () => {
@@ -52,7 +53,7 @@ const getThisMonthIncome = async () => {
                     { paymentWay: 'stripe' },
                     { paymentWay: 'cash', status: 'confirmed' }
                 ]
-            }, 
+            },
 
         },
 
@@ -71,7 +72,11 @@ const getThisMonthIncome = async () => {
             }
         }
     ]);
-    return response[0].income;
+    if (response?.length > 0) {
+        if (response[0]?.income)
+            return response[0]?.income
+    }
+    return 0;
 }
 
 const getMonthlyAppointmentsStatus = async () => {
@@ -113,23 +118,23 @@ const handleGetStatistics = async (req, res, next) => {
                 getThisMonthIncome(),
                 getMonthlyAppointmentsStatus(),
                 reportModel.countDocuments(),
-                appointmentModel.countDocuments({ date: format(now,'yyyy-MM-dd') }),
+                appointmentModel.countDocuments({ date: format(now, 'yyyy-MM-dd') }),
                 doctorModel.find({}, { fullName: 1, specialization: 1, rate: 1, treatmentsNumber: 1 }).sort({ rate: -1, treatmentsNumber: -1 }).limit(5)
 
             ])
         const [currentMontheIncome, previousMontheIncome] = await Promise.all(
             [
                 appointmentModel.aggregate([
-                    { $match: { status: 'confirmed', date: { $gte: format(startOfMonth(now),'yyyy-MM-dd'), $lte: format(now,'yyyy-MM-dd') } } },
+                    { $match: { status: 'confirmed', date: { $gte: format(startOfMonth(now), 'yyyy-MM-dd'), $lte: format(now, 'yyyy-MM-dd') } } },
                     { $group: { _id: null, total: { $sum: "$fee" } } }
                 ]),
                 appointmentModel.aggregate([
-                    { $match: { date: { $gte: format(subMonths(startOfMonth(now), 1),'yyyy-MM-dd'), $lte: format(subMonths(now, 1) ,'yyyy-MM-dd')}, status: 'confirmed' } },
+                    { $match: { date: { $gte: format(subMonths(startOfMonth(now), 1), 'yyyy-MM-dd'), $lte: format(subMonths(now, 1), 'yyyy-MM-dd') }, status: 'confirmed' } },
                     { $group: { _id: null, total: { $sum: "$fee" } } }
                 ]),
             ]
         )
-        const monthlyGrowthPercentage = (100 - ((previousMontheIncome[0]?.total || 0) / (currentMontheIncome[0]?.total || 0)) * 100).toFixed(2);
+        let monthlyGrowthPercentage = calculateGrowthPercentage(previousMontheIncome, currentMontheIncome);
 
         const specializationNumbers = await doctorModel.aggregate([
             {
@@ -151,6 +156,7 @@ const handleGetStatistics = async (req, res, next) => {
         return res.status(200).send({ doctorsNumber, usersNumber, weeklyIncome, thisMonthIncome, monthlyAppointmentsStatus, reportsNumber, specializationNumbers, topDoctors, todayAppointmentsNumber, monthlyGrowthPercentage })
 
     } catch (err) {
+        console.log(err)
         next(err);
     }
 }
